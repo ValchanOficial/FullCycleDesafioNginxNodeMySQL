@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+
+    nginx:
+        build:
+            context: ./nginx
+        container_name: nginx
+        ports:
+            - "8080:80"
+        depends_on:
+            - node
+        networks:
+            - node-network
+
+    node:
+        build:
+            context: ./node
+        container_name: node
+        tty: true
+        ports:
+            - "3333:3333"
+        depends_on:
+            - db
+        volumes:
+            - ./node:/usr/src/app
+        networks:
+            - node-network
+
+    db:
+        image: mysql:5.7
+        command: --innodb-use-native-aio=0
+        container_name: db
+        restart: always
+        tty: true
+        environment:
+            MYSQL_DATABASE: desafio02
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./mysql:/var/lib/mysql
+        networks:
+            - node-network
+
+networks:
+    node-network:
+        driver: bridge
