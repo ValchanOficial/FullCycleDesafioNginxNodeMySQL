@@ -6,7 +6,6 @@ services:
         build:
             context: ./nginx
         container_name: nginx
-        image: valchan/nginx
         ports:
             - "8080:80"
         depends_on:
@@ -19,23 +18,17 @@ services:
         build:
             context: ./node
         container_name: node
-        image: valchan/node
-        entrypoint: dockerize -wait tcp://db:3306 -timeout 30s docker-entrypoint.sh
-        command: "node index.js"
+        entrypoint: dockerize -wait tcp://db:3306 -timeout 30s sh -c "npm install && node index.js"
         tty: true
-        ports:
-            - "3333:3333"
         depends_on:
             - db
         volumes:
             - ./node:/usr/src/app
-            - /usr/src/app/node_modules
         networks:
             - node-network
 
     db:
         image: mysql:5.7
-        command: --innodb-use-native-aio=0
         container_name: db
         restart: always
         tty: true
